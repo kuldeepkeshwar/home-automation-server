@@ -3,6 +3,13 @@ const defaultConfiguration = {
   pins: [13],
   status: [0]
 };
+
+class DeviceError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+  }
+}
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -29,7 +36,7 @@ function update(id) {
   if (device) {
     device.lastOnline = new Date();
   } else {
-    throw new Error("Device not found: " + id);
+    throw new DeviceError("Device not found: " + id, 404);
   }
 }
 function set(id, options) {
@@ -40,7 +47,7 @@ function set(id, options) {
     device.status = options.status;
     return device;
   } else {
-    throw new Error("Device not found: " + id);
+    throw new DeviceError("Device not found: " + id, 404);
   }
 }
 function findByIP(ip) {
@@ -52,7 +59,7 @@ function fetchOne(id) {
   if (device) {
     return device;
   } else {
-    throw new Error("Device not found: " + id);
+    throw new DeviceError("Device not found: " + id, 404);
   }
 }
 function fetchAll() {

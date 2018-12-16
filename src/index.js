@@ -45,7 +45,11 @@ app.use(function(err, req, res, next) {
   console.error(err.stack);
   res
     .status(500)
-    .json({ success: 0, message: err.message || "Something broke!" });
+    .json({
+      success: 0,
+      code: err.code,
+      message: err.message || "Something broke!"
+    });
 });
 app.listen(port, (...args) =>
   console.log(`Example app listening on port ${port}!`, ...args)
