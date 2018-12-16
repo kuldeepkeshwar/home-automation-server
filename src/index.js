@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(function(req, res, next) {
-  console.log(req.originalUrl);
+  console.log({ url: req.originalUrl, method: req.method });
   next();
 });
 app.get("/ping", function(req, res) {
@@ -43,13 +43,11 @@ app.get("/api/devices", function(req, res) {
 });
 app.use(function(err, req, res, next) {
   console.error(err.stack);
-  res
-    .status(500)
-    .json({
-      success: 0,
-      code: err.code,
-      message: err.message || "Something broke!"
-    });
+  res.status(500).json({
+    success: 0,
+    code: err.code,
+    message: err.message || "Something broke!"
+  });
 });
 app.listen(port, (...args) =>
   console.log(`Example app listening on port ${port}!`, ...args)

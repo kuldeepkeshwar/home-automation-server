@@ -1,7 +1,7 @@
 const devices = {};
 const defaultConfiguration = {
-  pins: [13],
-  status: [0]
+  pins: [13, 12],
+  status: [0, 0]
 };
 
 class DeviceError extends Error {
@@ -18,7 +18,7 @@ function getRandomInt(min, max) {
 function add(ip) {
   let device = findByIP(ip);
   if (device) {
-    update(id);
+    update(device.id);
   } else {
     device = {
       id: getRandomInt(1, 1000),
@@ -51,7 +51,10 @@ function set(id, options) {
   }
 }
 function findByIP(ip) {
-  return Object.keys(devices).filter(id => ip == devices[id])[0];
+  const id = Object.keys(devices).filter(id => {
+    ip == devices[id].ip;
+  })[0];
+  return devices[id];
 }
 function fetchOne(id) {
   const device = devices[id];
