@@ -43,17 +43,44 @@ function set(id, options) {
   const device = devices[id];
   if (device) {
     device.lastOnline = new Date();
-    device.pins = options.pins;
-    device.status = options.status;
+    device.pins = options.pins.map(Number);
+    device.status = options.status.map(Number);
     return device;
   } else {
     throw new DeviceError("Device not found: " + id, 404);
   }
 }
+function setPin(deviceId, id, status) {
+  const device = devices[deviceId];
+  if (device) {
+    device.lastOnline = new Date();
+    device.pins.forEeach(function(pin, index) {
+      if (pin === id) {
+        device.status[index] = status;
+      }
+    });
+    return device;
+  } else {
+    throw new DeviceError("Device not found: " + id, 404);
+  }
+}
+function getPin(deviceId, id) {
+  const device = devices[deviceId];
+  if (device) {
+    device.lastOnline = new Date();
+    let status;
+    device.pins.forEach(function(pin, index) {
+      if (pin === id) {
+        status = device.status[index];
+      }
+    });
+    return status;
+  } else {
+    throw new DeviceError("Device not found: " + id, 404);
+  }
+}
 function findByIP(ip) {
-  const id = Object.keys(devices).filter(id => {
-    ip == devices[id].ip;
-  })[0];
+  const id = Object.keys(devices).filter(id => ip == devices[id].ip)[0];
   return devices[id];
 }
 function fetchOne(id) {
@@ -68,4 +95,4 @@ function fetchOne(id) {
 function fetchAll() {
   return devices;
 }
-module.exports = { fetchAll, fetchOne, set, update, add };
+module.exports = { fetchAll, fetchOne, set, update, add, setPin, getPin };

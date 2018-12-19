@@ -37,9 +37,25 @@ app.post("/api/devices/:id", function(req, res) {
   const device = db.set(id, payload);
   res.json({ success: 1, data: device });
 });
+
 app.get("/api/devices", function(req, res) {
   const devices = db.fetchAll();
   res.json({ success: 1, data: devices });
+});
+
+app.post("/api/devices/:deviceId/pins/:id", function(req, res) {
+  const id = req.params.id - 0;
+  const deviceId = req.params.deviceId - 0;
+  const { status } = req.body;
+  const device = db.setPin(deviceId, id, status - 0);
+  res.json({ success: 1, data: device });
+});
+
+app.get("/api/devices/:deviceId/pins/:id", function(req, res) {
+  const id = req.params.id - 0;
+  const deviceId = req.params.deviceId - 0;
+  const status = db.getPin(deviceId, id);
+  res.json({ success: 1, data: { status } });
 });
 app.use(function(err, req, res, next) {
   console.error(err.stack);
