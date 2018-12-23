@@ -1,9 +1,0 @@
-{
-  "name": "home-automation-server",
-  "version": 1,
-  "alias": ["home-automation-server"],
-  "files": ["src", "api", "package.json", "yarn.lock"],
-  "github": {
-    "enabled": true
-  }
-}
