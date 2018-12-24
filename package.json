@@ -9,10 +9,17 @@
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
     "express": "^4.16.4",
+    "hubdb": "^1.1.2",
     "request": "^2.88.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^5.11.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.2",
+    "eslint-plugin-react": "^7.11.1"
+  },
   "scripts": {
-    "start": "PORT=9090 node src/index.js"
+    "start": "PORT=9090 node --experimental-modules src/index.mjs"
   }
 }
