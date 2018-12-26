@@ -1,7 +1,6 @@
 import Hubdb from 'hubdb';
 
 const token = process.env.GITHUB_TOKEN;
-
 const db = Hubdb({
   token,
   username: 'kuldeepkeshwar',
@@ -13,9 +12,9 @@ const _devices = {};
 function buildCache() {
   return new Promise((resolve, reject) => {
     db.list((err, result) => {
-      if (err) {
+      if (err || !result) {
         console.log('error while building cache', err);
-        reject(err);
+        reject(err || result);
       } else {
         result.forEach(({ path, data }) => {
           _devices[path] = { id: path, ...data };
@@ -31,8 +30,8 @@ const cache = buildCache();
 function add(data) {
   return new Promise((resolve, reject) => {
     db.add(data, (err, res) => {
-      if (err) {
-        reject(err);
+      if (err || !res) {
+        reject(err || res);
       } else {
         const device = { ...data, id: res.content.path };
         _devices[device.id] = device;

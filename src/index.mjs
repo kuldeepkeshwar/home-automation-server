@@ -82,13 +82,18 @@ app.get('/api/devices/:deviceId/pins/:id', async (req, res, next) => {
     next(err);
   }
 });
-app.post('/api/smart-home', async (req, res, next) => {
+app.post('/api/smart-home/device/on', async (req, res, next) => {
   try {
-    const { parameters } = req.body;
-    const { device, rooms } = parameters;
-    const status = parameters['device-status'];
-    console.log({ status, device, rooms });
-    res.json({ success: 1, data: 'ok' });
+    console.log(req.body);
+    res.send('ok');
+  } catch (err) {
+    next(err);
+  }
+});
+app.post('/api/smart-home/device/off', async (req, res, next) => {
+  try {
+    console.log(req.body);
+    res.send('ok');
   } catch (err) {
     next(err);
   }

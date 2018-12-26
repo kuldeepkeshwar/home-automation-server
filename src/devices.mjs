@@ -26,8 +26,10 @@ async function fetchOne(id) {
 }
 async function findByIP(ip) {
   const devices = await fetchAll();
-  const id = devices.filter(device => ip === device.ip)[0];
-  return devices[id];
+  const d = Object.keys(devices)
+    .map(path => devices[path])
+    .filter(device => ip === device.ip)[0];
+  return d;
 }
 async function update(id) {
   const device = await fetchOne(id);

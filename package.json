@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "server for home-automation",
   "keywords": [],
-  "main": "src/index.js",
+  "main": "src/index.mjs",
   "dependencies": {
     "axios": "^0.18.0",
     "body-parser": "^1.18.3",
