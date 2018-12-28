@@ -33,6 +33,7 @@ function add(data) {
       if (err || !res) {
         reject(err || res);
       } else {
+        console.log({ res });
         const device = { ...data, id: res.content.path };
         _devices[device.id] = device;
         resolve(device);
