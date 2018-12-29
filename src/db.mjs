@@ -46,8 +46,17 @@ async function findAll() {
   const snapshot = await devices.once('value');
   return snapshot.val();
 }
+async function findByAttr(name, value) {
+  const snapshot = await devices
+    .orderByChild(name)
+    .equalTo(value)
+    .once('value');
+  const val = snapshot.val();
+  return val ? val[Object.keys(val)[0]] : null;
+}
 export default {
   add,
+  findByAttr,
   findAll,
   updateById,
   getById,

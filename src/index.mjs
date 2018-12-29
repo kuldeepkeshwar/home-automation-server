@@ -2,6 +2,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 import devices from './devices.mjs';
+import DeviceError from './device-error.mjs';
 
 const app = express();
 const port = process.env.PORT || 9090;
@@ -82,27 +83,49 @@ app.get('/api/devices/:deviceId/pins/:id', async (req, res, next) => {
     next(err);
   }
 });
-app.post('/api/smart-home/:room/:device/on', async (req, res, next) => {
+app.post('/api/smart-home/:room/device/on', async (req, res, next) => {
   try {
-    const { room, device } = req.params;
+    const { room } = req.params;
+    let { device } = req.body;
+    device = device.trim().toLowerCase();
 
     console.log({ room, device });
-    res.send('ok');
+    const board = await devices.findByName(room);
+    const { pins, buttons } = board;
+    const index = buttons.findIndex(btn => device.includes(btn));
+    if (index > -1) {
+      await devices.setPin(board.id, pins[index], 1);
+      console.log({ button: buttons[index] });
+    } else {
+      throw new DeviceError(`device not found: ${device}`, 404);
+    }
   } catch (err) {
     next(err);
   }
 });
-app.post('/api/smart-home/:room/:device/off', async (req, res, next) => {
+app.post('/api/smart-home/:room/device/off', async (req, res, next) => {
   try {
-    const { room, device } = req.params;
+    const { room } = req.params;
+    let { device } = req.body;
+    device = device.trim().toLowerCase();
+
     console.log({ room, device });
-    res.send('ok');
+    const board = await devices.findByName(room);
+    const { pins, buttons } = board;
+    const index = buttons.findIndex(btn => device.includes(btn));
+    if (index > -1) {
+      await devices.setPin(board.id, pins[index], 0);
+      console.log({ button: buttons[index] });
+    } else {
+      throw new DeviceError(`device not found: ${device}`, 404);
+    }
   } catch (err) {
     next(err);
   }
 });
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, _next) => {
+  console.log(err);
   res.status(500).json({
     success: 0,
     code: err.code,

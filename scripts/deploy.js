@@ -7,7 +7,6 @@ const envs = `-e FIREBASE_CLIENT_EMAIL=${
   secrets.client_email
 } -e FIREBASE_PRIVATE_KEY="${secrets.private_key}"`;
 
-shell.exec(`now ${envs}`);
-
-const url = shell.exec('pbpaste', { silent: true }).stdout;
+const url = shell.exec(`now ${envs}`).stdout;
 shell.exec(`now alias ${url} ${alias[0]}.now.sh`);
+process.exit(0);

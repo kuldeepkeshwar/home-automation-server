@@ -1,18 +1,17 @@
 import db from './db.mjs';
+import DeviceError from './device-error.mjs';
 
 const defaultConfiguration = {
+  name: null,
+  lastOnline: null,
+  id: null,
+  ip: null,
   syncd: false,
   pins: [4, 5],
-  buttons: ['TV', 'HOME THEATRE'],
+  buttons: ['tv', 'home theatre'],
   status: [0, 0],
 };
 
-class DeviceError extends Error {
-  constructor(message, code) {
-    super(message);
-    this.code = code;
-  }
-}
 async function fetchAll() {
   const devices = await db.findAll();
   return devices;
@@ -24,22 +23,23 @@ async function fetchOne(id) {
   if (device) {
     return device;
   }
-  throw new DeviceError(`Device not found: ${id}`, 404);
+  throw new DeviceError(`Board not found: ${id}`, 404);
 }
 async function findByIP(ip) {
-  const devices = await fetchAll();
-  const d = Object.keys(devices)
-    .map(path => devices[path])
-    .filter(device => ip === device.ip)[0];
-  return d;
+  const device = await db.findByAttr('ip', ip);
+  return device;
+}
+async function findByName(name) {
+  const device = await db.findByAttr('name', name);
+  return device;
 }
 async function update(id) {
   const device = await fetchOne(id);
   if (device) {
     device.lastOnline = new Date();
-    db.updateById(id, device).then(d => console.log('updated device ', { id, device: d }));
+    db.updateById(id, device).then(d => console.log('updated Board ', { id, device: d }));
   } else {
-    throw new DeviceError(`Device not found: ${id}`, 404);
+    throw new DeviceError(`Board not found: ${id}`, 404);
   }
 }
 async function add(ip) {
@@ -48,6 +48,7 @@ async function add(ip) {
     await update(device.id);
   } else {
     device = await db.add({
+      ...defaultConfiguration,
       ip,
       lastOnline: new Date(),
       pins: defaultConfiguration.pins,
@@ -67,7 +68,7 @@ async function set(id, options) {
     const updatdDevice = await db.updateById(id, device);
     return updatdDevice;
   }
-  throw new DeviceError(`Device not found: ${id}`, 404);
+  throw new DeviceError(`Board not found: ${id}`, 404);
 }
 async function setPin(id, pin, status) {
   const device = await fetchOne(id);
@@ -81,7 +82,7 @@ async function setPin(id, pin, status) {
     const updatdDevice = await db.updateById(id, device);
     return updatdDevice;
   }
-  throw new DeviceError(`Device not found: ${id}`, 404);
+  throw new DeviceError(`Board not found: ${id}`, 404);
 }
 async function getPin(id, pin) {
   const device = await fetchOne(id);
@@ -95,7 +96,7 @@ async function getPin(id, pin) {
     });
     return status;
   }
-  throw new DeviceError(`Device not found: ${id}`, 404);
+  throw new DeviceError(`Board not found: ${id}`, 404);
 }
 
 export default {
@@ -104,6 +105,7 @@ export default {
   set,
   update,
   add,
+  findByName,
   setPin,
   getPin,
 };
