@@ -82,24 +82,27 @@ app.get('/api/devices/:deviceId/pins/:id', async (req, res, next) => {
     next(err);
   }
 });
-app.post('/api/smart-home/device/on', async (req, res, next) => {
+app.post('/api/smart-home/:room/:device/on', async (req, res, next) => {
   try {
-    console.log(req.body);
+    const { room, device } = req.params;
+
+    console.log({ room, device });
     res.send('ok');
   } catch (err) {
     next(err);
   }
 });
-app.post('/api/smart-home/device/off', async (req, res, next) => {
+app.post('/api/smart-home/:room/:device/off', async (req, res, next) => {
   try {
-    console.log(req.body);
+    const { room, device } = req.params;
+    console.log({ room, device });
     res.send('ok');
   } catch (err) {
     next(err);
   }
 });
-app.use((err, req, res) => {
-  console.error(err.stack);
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, _next) => {
   res.status(500).json({
     success: 0,
     code: err.code,

@@ -1,69 +1,51 @@
-import Hubdb from 'hubdb';
+import firebase from 'firebase-admin';
 
-const token = process.env.GITHUB_TOKEN;
-const db = Hubdb({
-  token,
-  username: 'kuldeepkeshwar',
-  repo: 'home-automation-server',
-  branch: 'db',
+const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+const privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+firebase.initializeApp({
+  credential: firebase.credential.cert({
+    projectId: 'home-automation-35818',
+    clientEmail,
+    privateKey,
+  }),
+  databaseURL: 'https://home-automation-35818.firebaseio.com',
 });
-// eslint-disable-next-line no-underscore-dangle
-const _devices = {};
-function buildCache() {
-  return new Promise((resolve, reject) => {
-    db.list((err, result) => {
-      if (err || !result) {
-        console.log('error while building cache', err);
-        reject(err || result);
-      } else {
-        result.forEach(({ path, data }) => {
-          _devices[path] = { id: path, ...data };
-        });
-        console.log('cache done!!');
-        resolve(_devices);
-      }
-    });
-  });
-}
-const cache = buildCache();
+const database = firebase.database();
 
+const devices = database.ref('devices');
 function add(data) {
   return new Promise((resolve, reject) => {
-    db.add(data, (err, res) => {
-      if (err || !res) {
-        reject(err || res);
-      } else {
-        console.log({ res });
-        const device = { ...data, id: res.content.path };
-        _devices[device.id] = device;
-        resolve(device);
-      }
-    });
+    try {
+      const id = devices.push().key;
+      const device = { ...data, id };
+      devices.child(`${id}`).set(device);
+      resolve(device);
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 function updateById(id, data) {
   return new Promise((resolve, reject) => {
-    db.update(id, data, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        const device = { ...data, id };
-        _devices[device.id] = device;
-        resolve(device);
-      }
-    });
+    try {
+      const device = { ...data, id };
+      devices.child(`${id}`).update(device);
+      resolve(device);
+    } catch (err) {
+      reject(err);
+    }
   });
 }
 
 async function getById(id) {
-  const devices = await cache;
-  return devices[id];
+  const snapshot = await devices.child(`${id}`).once('value');
+  return snapshot.val();
 }
 async function findAll() {
-  const devices = await cache;
-  return devices;
+  const snapshot = await devices.once('value');
+  return snapshot.val();
 }
-
 export default {
   add,
   findAll,

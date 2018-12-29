@@ -1,7 +1,9 @@
 import db from './db.mjs';
 
 const defaultConfiguration = {
-  pins: [13, 12],
+  syncd: false,
+  pins: [4, 5],
+  buttons: ['TV', 'HOME THEATRE'],
   status: [0, 0],
 };
 
