@@ -22,7 +22,7 @@
     "shelljs": "^0.8.3"
   },
   "scripts": {
-    "start": "PORT=9090 node --inspect --experimental-modules src/index.mjs",
+    "start": "PORT=9090 node --experimental-modules src/index.mjs",
     "local": "node scripts/local-start.js",
     "deploy": "node scripts/deploy.js"
   }
