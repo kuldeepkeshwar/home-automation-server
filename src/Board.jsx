@@ -1,24 +1,36 @@
+/* eslint-disable react/prop-types */
 import React, { useState } from 'react';
 import Table from '@material-ui/core/Table';
-import { withStyles } from '@material-ui/core/styles';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { setPin } from './api';
-import Switch from './Switch';
+import Switch from './Components/Switch';
+import {
+  OfflineIcon,
+  OnlineIcon,
+  PermIdentityIcon,
+  AccessTimeIcon,
+} from './Components/Icons';
+import PaperSheet from './Components/Paper';
 
-const paperStyles = theme => ({
-  root: {
-    ...theme.mixins.gutters(),
-    paddingTop: theme.spacing.unit * 2,
-    paddingBottom: theme.spacing.unit * 2,
-  },
-});
-const PaperSheet = withStyles(paperStyles)(Paper);
+function DisplayDate({ date }) {
+  const d = new Date(date);
+  const diff = (Date.now() - d.getTime()) / 1000;
+  const Icon = diff > 60 ? OfflineIcon : OnlineIcon;
+  return (
+    <React.Fragment>
+      <AccessTimeIcon />
+      {' '}
+      <span>{d.toLocaleString()}</span>
+      {' '}
+      <Icon />
+    </React.Fragment>
+  );
+}
 export default function Board({ data }) {
   const [board, setBoardState] = useState(data);
   function togglePin(index) {
@@ -32,36 +44,47 @@ export default function Board({ data }) {
     <div style={{ margin: '20px' }}>
       <PaperSheet elevation={1}>
         <Grid container spacing={24}>
-          <Grid item xs={12}>
-            <Typography align="left" variant="h5" component="h2">
-              Board:
-              {' '}
+          <Grid item xs={3}>
+            <Typography variant="title" component="span">
               {board.name}
             </Typography>
           </Grid>
-          <Grid item xs={4}>
-            <Typography variant="subheading" color="textSecondary">
-              ID
-              <Typography variant="title" component="h6">
-                {board.id}
-              </Typography>
+          <Grid item xs={9}>
+            <Typography
+              align="right"
+              variant="subheading"
+              color="textSecondary"
+              component="span"
+            >
+              <PermIdentityIcon />
+              {' '}
+              {board.id}
             </Typography>
+            {/* <Typography align="right" variant="title" component="span" /> */}
           </Grid>
-          <Grid item xs={4}>
-            <Typography variant="subheading" color="textSecondary">
-              IP
-              <Typography variant="title" component="h6">
-                {board.ip}
-              </Typography>
+          <Grid item xs={3}>
+            <Typography
+              align="left"
+              variant="subheading"
+              color="textSecondary"
+              component="span"
+            >
+              IP:
+              {' '}
+              {board.ip}
             </Typography>
+            {/* <Typography align="right" variant="title" component="span" /> */}
           </Grid>
-          <Grid item xs={4}>
-            <Typography variant="subheading" color="textSecondary">
-              Last Online
-              <Typography variant="title" component="h6">
-                {board.lastOnline}
-              </Typography>
+          <Grid item xs={9}>
+            <Typography
+              align="right"
+              variant="subheading"
+              color="textSecondary"
+              component="span"
+            >
+              <DisplayDate date={board.lastOnline} />
             </Typography>
+            {/* <Typography align="right" variant="title" component="span" /> */}
           </Grid>
         </Grid>
         <Grid container spacing={24}>
@@ -75,7 +98,7 @@ export default function Board({ data }) {
             </TableHead>
             <TableBody>
               {board.pins.map((pin, i) => (
-                <TableRow key={i}>
+                <TableRow key={pin}>
                   <TableCell>{board.buttons[i]}</TableCell>
                   <TableCell align="center">{pin}</TableCell>
                   <TableCell align="center">

@@ -56,32 +56,31 @@ const styles = theme => ({
   },
 });
 
-class CustomizedSwitches extends React.Component {
-  render() {
-    const {
-      classes, onChange, checked, value,
-    } = this.props;
-
-    return (
-      <Switch
-        classes={{
-          switchBase: classes.iOSSwitchBase,
-          bar: classes.iOSBar,
-          icon: classes.iOSIcon,
-          iconChecked: classes.iOSIconChecked,
-          checked: classes.iOSChecked,
-        }}
-        disableRipple
-        checked={checked}
-        onChange={onChange}
-        value={value}
-      />
-    );
-  }
+function CustomizedSwitches({
+  classes, onChange, checked, value,
+}) {
+  return (
+    <Switch
+      classes={{
+        switchBase: classes.iOSSwitchBase,
+        bar: classes.iOSBar,
+        icon: classes.iOSIcon,
+        iconChecked: classes.iOSIconChecked,
+        checked: classes.iOSChecked,
+      }}
+      disableRipple
+      checked={checked}
+      onChange={onChange}
+      value={value}
+    />
+  );
 }
 
 CustomizedSwitches.propTypes = {
   classes: PropTypes.object.isRequired,
+  checked: PropTypes.bool.isRequired,
+  onChange: PropTypes.func.isRequired,
+  value: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(CustomizedSwitches);
