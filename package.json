@@ -3,18 +3,21 @@
   "version": "1.0.0",
   "description": "server for home-automation",
   "keywords": [],
-  "main": "src/index.mjs",
+  "main": "server/index.mjs",
   "dependencies": {
-    "axios": "^0.18.0",
+    "@material-ui/core": "3.7.1",
+    "axios": "0.18.0",
     "body-parser": "^1.18.3",
     "cors": "^2.8.5",
     "express": "^4.16.4",
     "firebase-admin": "^6.4.0",
     "hubdb": "^1.1.2",
+    "react": "16.7.0-alpha.2",
+    "react-dom": "16.7.0-alpha.2",
+    "react-scripts": "2.0.3",
     "request": "^2.88.0"
   },
   "devDependencies": {
-    "eslint": "^5.11.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
@@ -22,8 +25,20 @@
     "shelljs": "^0.8.3"
   },
   "scripts": {
-    "start": "PORT=9090 node --experimental-modules src/index.mjs",
-    "local": "node scripts/local-start.js",
+    "start": "PORT=9090 node --experimental-modules server/index.mjs",
+    "dev": "npm run dev:server & npm run dev:ui",
+    "dev:ui": "react-scripts start",
+    "dev:server": "node scripts/local-start.js",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
     "deploy": "node scripts/deploy.js"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
+  "proxy": "http://localhost:9090/"
 }

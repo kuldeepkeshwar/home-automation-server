@@ -37,7 +37,7 @@ async function update(id) {
   const device = await fetchOne(id);
   if (device) {
     device.lastOnline = new Date();
-    db.updateById(id, device).then(d => console.log('updated Board ', { id, device: d }));
+    await db.updateById(id, device);
   } else {
     throw new DeviceError(`Board not found: ${id}`, 404);
   }

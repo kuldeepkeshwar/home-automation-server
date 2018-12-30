@@ -1,25 +1,13 @@
-import bodyParser from 'body-parser';
-import cors from 'cors';
 import express from 'express';
+
 import devices from './devices.mjs';
 import DeviceError from './device-error.mjs';
 
-const app = express();
-const port = process.env.PORT || 9090;
+const ESP8266HTTPClient = 'ESP8266HTTPClient';
+const router = express.Router();
 
-app.use(cors());
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use((req, res, next) => {
+router.post('/devices', async (req, res, next) => {
   console.log({ url: req.originalUrl, method: req.method });
-  next();
-});
-app.get('/ping', (req, res) => {
-  res.send('pong');
-});
-app.post('/api/devices', async (req, res, next) => {
   try {
     const { ip } = req.body;
     if (!ip) {
@@ -31,17 +19,22 @@ app.post('/api/devices', async (req, res, next) => {
     next(err);
   }
 });
-app.get('/api/devices/:id', async (req, res, next) => {
+router.get('/devices/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     await devices.update(id);
     const device = await devices.fetchOne(id);
-    res.json({ success: 1, data: device });
+    if (req.headers['user-agent'] === ESP8266HTTPClient) {
+      const { pins, status } = device;
+      res.json({ success: 1, data: { pins, status } });
+    } else {
+      res.json({ success: 1, data: device });
+    }
   } catch (err) {
     next(err);
   }
 });
-app.post('/api/devices/:id', async (req, res, next) => {
+router.post('/devices/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const payload = req.body;
@@ -52,7 +45,7 @@ app.post('/api/devices/:id', async (req, res, next) => {
   }
 });
 
-app.get('/api/devices', async (req, res, next) => {
+router.get('/devices', async (req, res, next) => {
   try {
     const data = await devices.fetchAll();
     res.json({ success: 1, data });
@@ -61,7 +54,7 @@ app.get('/api/devices', async (req, res, next) => {
   }
 });
 
-app.post('/api/devices/:deviceId/pins/:id', async (req, res, next) => {
+router.post('/devices/:deviceId/pins/:id', async (req, res, next) => {
   try {
     const id = req.params.id - 0;
     const { deviceId } = req.params;
@@ -73,7 +66,7 @@ app.post('/api/devices/:deviceId/pins/:id', async (req, res, next) => {
   }
 });
 
-app.get('/api/devices/:deviceId/pins/:id', async (req, res, next) => {
+router.get('/devices/:deviceId/pins/:id', async (req, res, next) => {
   try {
     const id = req.params.id - 0;
     const { deviceId } = req.params;
@@ -83,7 +76,7 @@ app.get('/api/devices/:deviceId/pins/:id', async (req, res, next) => {
     next(err);
   }
 });
-app.post('/api/smart-home/:room/device/on', async (req, res, next) => {
+router.post('/smart-home/:room/device/on', async (req, res, next) => {
   try {
     const { room } = req.params;
     let { device } = req.body;
@@ -103,7 +96,7 @@ app.post('/api/smart-home/:room/device/on', async (req, res, next) => {
     next(err);
   }
 });
-app.post('/api/smart-home/:room/device/off', async (req, res, next) => {
+router.post('/smart-home/:room/device/off', async (req, res, next) => {
   try {
     const { room } = req.params;
     let { device } = req.body;
@@ -123,13 +116,4 @@ app.post('/api/smart-home/:room/device/off', async (req, res, next) => {
     next(err);
   }
 });
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, _next) => {
-  console.log(err);
-  res.status(500).json({
-    success: 0,
-    code: err.code,
-    message: err.message || 'Something broke!',
-  });
-});
-app.listen(port, (...args) => console.log(`Example app listening on port ${port}!`, ...args));
+export default router;
