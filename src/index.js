@@ -11,7 +11,7 @@ function App() {
   }, []);
   return (
     <div className="App">
-      <h1>Home Automation</h1>
+      <h1>🏠 💡 🔌 </h1>
       {Object.keys(boards).map(id => (
         <Board key={id} data={boards[id]} />
       ))}

@@ -1,5 +1,5 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
-import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import purple from '@material-ui/core/colors/purple';
 import Switch from '@material-ui/core/Switch';
@@ -75,12 +75,5 @@ function CustomizedSwitches({
     />
   );
 }
-
-CustomizedSwitches.propTypes = {
-  classes: PropTypes.object.isRequired,
-  checked: PropTypes.bool.isRequired,
-  onChange: PropTypes.func.isRequired,
-  value: PropTypes.string.isRequired,
-};
 
 export default withStyles(styles)(CustomizedSwitches);
