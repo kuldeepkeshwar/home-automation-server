@@ -1,7 +1,7 @@
 {
-  "name": "home-automation-server",
+  "name": "smart-home-agent",
   "version": 1,
-  "alias": ["home-automation-server"],
+  "alias": ["smart-home-agent"],
   "github": {
     "enabled": false
   }

@@ -4,7 +4,7 @@ const token = process.env.GITHUB_TOKEN;
 const db = Hubdb({
   token,
   username: 'kuldeepkeshwar',
-  repo: 'home-automation-server',
+  repo: 'smart-home-agent',
   branch: 'db',
 });
 // eslint-disable-next-line no-underscore-dangle
