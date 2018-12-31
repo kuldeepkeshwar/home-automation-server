@@ -6,7 +6,7 @@ import Board from './Board';
 import Emoji from './Components/Emoji';
 
 const EmojiStyle = {
-  fontSize: '4rem',
+  fontSize: '3rem',
   height: '4rem',
   width: '4rem',
 };
@@ -18,7 +18,7 @@ function App() {
   return (
     // eslint-disable-next-line react/jsx-filename-extension
     <div className="App">
-      <h1>
+      <h1 className="title">
         <Emoji style={EmojiStyle} name="home-automation" />
         {' '}
         <Emoji style={EmojiStyle} name="iot-board" />

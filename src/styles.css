@@ -1,5 +1,9 @@
 .App {
-    font-family: sans-serif;
-    text-align: center;
-  }
-  
+  font-family: sans-serif;
+  text-align: center;
+}
+.title {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+}

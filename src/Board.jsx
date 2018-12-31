@@ -80,7 +80,6 @@ export default function Board({ data }) {
               {' '}
               <Emoji style={EmojiStyle} name="ip" />
             </Typography>
-            {/* <Typography align="right" variant="title" component="span" /> */}
           </Grid>
           <Grid item xs={12} sm={6}>
             <StyledTypography
@@ -92,7 +91,6 @@ export default function Board({ data }) {
               {' '}
               {board.id}
             </StyledTypography>
-            {/* <Typography align="right" variant="title" component="span" /> */}
           </Grid>
           <Grid item xs={12} sm={6}>
             <Typography
@@ -104,14 +102,13 @@ export default function Board({ data }) {
             >
               <DisplayDate date={board.lastOnline} />
             </Typography>
-            {/* <Typography align="right" variant="title" component="span" /> */}
           </Grid>
         </Grid>
         <Grid container spacing={24}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Button</TableCell>
+                <TableCell>Device</TableCell>
                 <TableCell align="center">Pin</TableCell>
                 <TableCell align="center">Status</TableCell>
               </TableRow>
