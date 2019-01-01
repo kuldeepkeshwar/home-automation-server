@@ -6,7 +6,8 @@ const defaultConfiguration = {
   lastOnline: null,
   id: null,
   ip: null,
-  syncd: false,
+  syncd: true,
+  reset: false,
   pins: [4, 5],
   buttons: ['tv', 'home theatre'],
   status: [0, 0],
@@ -38,30 +39,33 @@ async function update(id) {
   if (device) {
     device.lastOnline = new Date();
     await db.updateById(id, device);
-  } else {
-    throw new DeviceError(`Board not found: ${id}`, 404);
-  }
-}
-async function add(ip) {
-  let device = await findByIP(ip);
-  if (device) {
-    await update(device.id);
-  } else {
-    device = await db.add({
-      ...defaultConfiguration,
-      ip,
-      lastOnline: new Date(),
-      pins: defaultConfiguration.pins,
-      status: defaultConfiguration.status,
-    });
     return device;
   }
+  throw new DeviceError(`Board not found: ${id}`, 404);
+}
+async function add(name, ip) {
+  let device = await findByName(name);
+  if (device) {
+    device.ip = ip;
+    device.lastOnline = new Date();
+    const updatdDevice = await db.updateById(device.id, device);
+    return updatdDevice;
+  }
+  device = await db.add({
+    ...defaultConfiguration,
+    name,
+    ip,
+    lastOnline: new Date(),
+    pins: defaultConfiguration.pins,
+    status: defaultConfiguration.status,
+  });
   return device;
 }
 
 async function set(id, options) {
-  const device = await fetchOne(id);
+  let device = await fetchOne(id);
   if (device) {
+    device = { ...device, ...options };
     device.lastOnline = new Date();
     device.pins = options.pins.map(Number);
     device.status = options.status.map(Number);
@@ -74,6 +78,7 @@ async function setPin(id, pin, status) {
   const device = await fetchOne(id);
   if (device) {
     device.lastOnline = new Date();
+    device.syncd = false;
     device.pins.forEach((p, index) => {
       if (pin === p) {
         device.status[index] = status;
@@ -105,6 +110,7 @@ export default {
   set,
   update,
   add,
+  findByIP,
   findByName,
   setPin,
   getPin,

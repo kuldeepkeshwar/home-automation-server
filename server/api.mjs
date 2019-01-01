@@ -9,11 +9,11 @@ const router = express.Router();
 router.post('/devices', async (req, res, next) => {
   console.log({ url: req.originalUrl, method: req.method });
   try {
-    const { ip } = req.body;
+    const { ip, name } = req.body;
     if (!ip) {
       throw new Error('device ip is required');
     }
-    const device = await devices.add(ip);
+    const device = await devices.add(name, ip);
     res.json({ success: 1, data: device });
   } catch (err) {
     next(err);
@@ -44,7 +44,6 @@ router.post('/devices/:id', async (req, res, next) => {
     next(err);
   }
 });
-
 router.get('/devices', async (req, res, next) => {
   try {
     const data = await devices.fetchAll();
@@ -53,7 +52,32 @@ router.get('/devices', async (req, res, next) => {
     next(err);
   }
 });
-
+router.get('/devices/:id/heartbeat', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await devices.update(id);
+    const device = await devices.fetchOne(id);
+    const { syncd, reset } = device;
+    res.json({ success: 1, data: { syncd, reset } });
+  } catch (err) {
+    next(err);
+  }
+});
+router.post('/devices/:id/meta', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    let { syncd, reset } = req.body;
+    syncd = Number(syncd);
+    reset = Number(reset);
+    syncd = !!syncd;
+    reset = !!reset;
+    const device = await devices.update(id);
+    await devices.set(id, { ...device, ...{ syncd, reset } });
+    res.json({ success: 1 });
+  } catch (err) {
+    next(err);
+  }
+});
 router.post('/devices/:deviceId/pins/:id', async (req, res, next) => {
   try {
     const id = req.params.id - 0;
