@@ -54,6 +54,7 @@ JsonObject& makePostCall(String url, String payload) {
 
   const size_t bufferSize = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
   DynamicJsonBuffer jsonBuffer(bufferSize);
+  ESP.wdtFeed();
   if (https.begin(*client, url)) {
     https.addHeader("Content-Type", "application/x-www-form-urlencoded");
     Serial.print("[HTTPS] POST...");
@@ -87,7 +88,7 @@ JsonObject& makeGetCall(String url) {
 
   const size_t bufferSize = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
   DynamicJsonBuffer jsonBuffer(bufferSize);
-
+  ESP.wdtFeed();
   if (https.begin(*client, url)) {
 
     Serial.print("[HTTPS] GET...");
@@ -250,7 +251,7 @@ void setupWebServer() {
 void setup() {
   Serial.begin(115200);
   delay(10);
-
+  
   connectToWiFi();
   setupWebServer();
   Serial.println(" setup completed !!!");
