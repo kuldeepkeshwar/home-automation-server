@@ -10,11 +10,11 @@
 #define STASSID "kuldeep keshwar"
 #define STAPSK  "9004925450"
 #define SERVER_BASE_URL  "https://smart-home-agent.now.sh"
-#define FINGERPRINT "72 94 95 F1 6C BE 08 C2 7B E4 5D 0C 79 66 74 2B 89 1C C4 42"
 #define BOARD_NAME "living-room"
 #define CONNECTION_FAILED  "{ success:0,message:\"CONNECTION_FAILED\"}"
 #define TOTAL_PINS  20
 #define INITIAL_ID  "-1"
+const char fingerprint[] PROGMEM = "72 94 95 F1 6C BE 08 C2 7B E4 5D 0C 79 66 74 2B 89 1C C4 42";
 
 WiFiClientSecure client;
 ESP8266WebServer server(80);
@@ -49,7 +49,7 @@ void handleNotFound() {
 }
 JsonObject& makePostCall(String url, String payload) {
   std::unique_ptr<BearSSL::WiFiClientSecure>client(new BearSSL::WiFiClientSecure);
-  client->setFingerprint(FINGERPRINT);
+  client->setFingerprint(fingerprint);
   HTTPClient https;
 
   const size_t bufferSize = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
@@ -82,7 +82,7 @@ JsonObject& makePostCall(String url, String payload) {
 }
 JsonObject& makeGetCall(String url) {
   std::unique_ptr<BearSSL::WiFiClientSecure>client(new BearSSL::WiFiClientSecure);
-  client->setFingerprint(FINGERPRINT);
+  client->setFingerprint(fingerprint);
   HTTPClient https;
 
   const size_t bufferSize = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
