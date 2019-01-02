@@ -1,14 +1,14 @@
-#include <Arduino.h>
+#include <ArduinoJson.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
-#include <WiFiClientSecureBearSSL.h>
-#include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
-#include <ArduinoJson.h>
+#include <ESP8266WiFiMulti.h>
 
-#define STASSID "kuldeep keshwar"
-#define STAPSK  "9004925450"
+#define STASSID_HOME "kuldeep keshwar"
+#define STAPSK_HOME  "9004925450"
+#define STASSID_MOBILE "Kuldeep Keshwar's iPhone"
+#define STAPSK_MOBILE  "kuldeep12345"
 #define SERVER_BASE_URL  "https://smart-home-agent.now.sh"
 #define BOARD_NAME "living-room"
 #define CONNECTION_FAILED  "{ success:0,message:\"CONNECTION_FAILED\"}"
@@ -155,7 +155,6 @@ bool updateMeta(bool reset, bool syncd) {
   }
   return false;
 }
-
 void heartbeat() {
   String url = String(SERVER_BASE_URL) + "/api/devices/";
   url = String(url) + id + "/heartbeat";
@@ -217,27 +216,21 @@ void connectToPublicServer() {
 }
 
 void connectToWiFi() {
-  Serial.begin(115200);
-  delay(10);
-  Serial.print("Connecting to ");
-  Serial.println(STASSID);
-
-  WiFi.begin(STASSID, STAPSK);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(10);
+  ESP8266WiFiMulti wifiMulti;
+  WiFi.mode(WIFI_STA);
+  wifiMulti.addAP(STASSID_MOBILE, STAPSK_MOBILE);
+  wifiMulti.addAP(STASSID_HOME, STAPSK_HOME);
+  Serial.print("Connecting to WiFi ");
+  while (wifiMulti.run() != WL_CONNECTED) {
     Serial.print(".");
+    delay(100);
   }
   Serial.println(" WiFi connected");
-
-  // Print the IP address
   Serial.println(" Use this URL to connect: " + WiFi.localIP().toString());
 
-  // print the received signal strength:
   long rssi = WiFi.RSSI();
   Serial.print("signal strength (RSSI):");
   Serial.println(rssi);
-
 }
 void setupWebServer() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -255,6 +248,9 @@ void setupWebServer() {
   Serial.println("HTTP server started");
 }
 void setup() {
+  Serial.begin(115200);
+  delay(10);
+
   connectToWiFi();
   setupWebServer();
   Serial.println(" setup completed !!!");
@@ -265,5 +261,7 @@ void loop() {
     heartbeat();
     server.handleClient();
     MDNS.update();
+  } else {
+    connectToWiFi();
   }
 }
