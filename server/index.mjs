@@ -9,12 +9,28 @@ const port = process.env.PORT || 9090;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/', express.static('build'));
 
 app.get('/ping', (req, res) => {
   res.send('pong');
 });
+
+app.use((req, res, next) => {
+  const {
+    originalUrl, body, query, params, method,
+  } = req;
+  if (method !== 'GET') {
+    console.log({
+      originalUrl,
+      body,
+      query,
+      params,
+      method,
+    });
+  }
+  next();
+});
 app.use('/api', api);
-app.use('/', express.static('build'));
 
 app.get('*', (req, res) => {
   const indexFile = Path.resolve('./build/index.html');

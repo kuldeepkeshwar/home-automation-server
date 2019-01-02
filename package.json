@@ -17,7 +17,8 @@
     "react": "16.7.0-alpha.2",
     "react-dom": "16.7.0-alpha.2",
     "react-scripts": "2.0.3",
-    "request": "^2.88.0"
+    "request": "^2.88.0",
+    "workbox-cli": "^3.6.3"
   },
   "devDependencies": {
     "eslint-config-airbnb": "^17.1.0",
@@ -31,10 +32,11 @@
     "dev": "npm run dev:server & npm run dev:ui",
     "dev:ui": "react-scripts start",
     "dev:server": "node scripts/local-start.js",
-    "build": "react-scripts build",
+    "build": "react-scripts build && npm run generate-sw",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "deploy": "node scripts/deploy.js"
+    "deploy": "node scripts/deploy.js",
+    "generate-sw": "npx workbox generateSW scripts/workbox-config.js"
   },
   "browserslist": [
     ">0.2%",
