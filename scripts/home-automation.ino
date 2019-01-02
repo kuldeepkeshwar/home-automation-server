@@ -1,47 +1,39 @@
-
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266HTTPClient.h>
 #include <WiFiClientSecureBearSSL.h>
-
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
-
 #include <ArduinoJson.h>
 
-#ifndef STASSID
 #define STASSID "kuldeep keshwar"
-#define STAPSK "9004925450"
-#endif
+#define STAPSK  "9004925450"
+#define SERVER_BASE_URL  "https://smart-home-agent.now.sh"
+#define FINGERPRINT "72 94 95 F1 6C BE 08 C2 7B E4 5D 0C 79 66 74 2B 89 1C C4 42"
+#define BOARD_NAME "living-room"
+#define CONNECTION_FAILED  "{ success:0,message:\"CONNECTION_FAILED\"}"
+#define TOTAL_PINS  20
+#define INITIAL_ID  "-1"
+
 WiFiClientSecure client;
 ESP8266WebServer server(80);
 
-const char *ssid = STASSID;
-const char *password = STAPSK;
-const String host = "https://smart-home-agent.now.sh";
-const int httpsPort = 443;
-const char fingerprint[] PROGMEM = "72 94 95 F1 6C BE 08 C2 7B E4 5D 0C 79 66 74 2B 89 1C C4 42";
-const String CONNECTION_FAILED = "{ success:0,message:\"CONNECTION_FAILED\"}";
-const int totalPins = 20;
-int pins[totalPins];
-int values[totalPins];
-String id = "-1";
+int pins[TOTAL_PINS];
+int values[TOTAL_PINS];
+String id = INITIAL_ID;
 
-void handleRoot()
-{
+void handleRoot() {
   digitalWrite(LED_BUILTIN, LOW);
   String str = String("Device: " + String(id) + " Status !!! \n");
-  for (int i = 0; i < totalPins; i++)
-  {
+  for (int i = 0; i < TOTAL_PINS; i++) {
     str = str + "Pin " + String(pins[i]) + "=" + values[i] + " \n";
   }
   server.send(200, "text/plain", str);
   digitalWrite(LED_BUILTIN, HIGH);
 }
 
-void handleNotFound()
-{
+void handleNotFound() {
   String message = "File Not Found\n\n";
   message += "URI: ";
   message += server.uri();
@@ -50,22 +42,19 @@ void handleNotFound()
   message += "\nArguments: ";
   message += server.args();
   message += "\n";
-  for (uint8_t i = 0; i < server.args(); i++)
-  {
+  for (uint8_t i = 0; i < server.args(); i++) {
     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
   server.send(404, "text/plain", message);
 }
-JsonObject &makePostCall(String url, String payload)
-{
-  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
-  client->setFingerprint(fingerprint);
+JsonObject& makePostCall(String url, String payload) {
+  std::unique_ptr<BearSSL::WiFiClientSecure>client(new BearSSL::WiFiClientSecure);
+  client->setFingerprint(FINGERPRINT);
   HTTPClient https;
 
   const size_t bufferSize = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
   DynamicJsonBuffer jsonBuffer(bufferSize);
-  if (https.begin(*client, url))
-  {
+  if (https.begin(*client, url)) {
     https.addHeader("Content-Type", "application/x-www-form-urlencoded");
     Serial.print("[HTTPS] POST...");
     Serial.println(url);
@@ -77,36 +66,29 @@ JsonObject &makePostCall(String url, String payload)
     Serial.print("[HTTPS] POST... resp: ");
     Serial.println(resp);
 
-    if (httpCode > 0)
-    {
-      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
-      {
+    if (httpCode > 0) {
+      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
         return jsonBuffer.parseObject(resp);
       }
-    }
-    else
-    {
+    } else {
       Serial.printf("[HTTPS] POST... failed, error: %s\n", https.errorToString(httpCode).c_str());
     }
     https.end();
-  }
-  else
-  {
+  } else {
     Serial.printf("[HTTPS] Unable to connect\n");
   }
   return jsonBuffer.parseObject(CONNECTION_FAILED);
+
 }
-JsonObject &makeGetCall(String url)
-{
-  std::unique_ptr<BearSSL::WiFiClientSecure> client(new BearSSL::WiFiClientSecure);
-  client->setFingerprint(fingerprint);
+JsonObject& makeGetCall(String url) {
+  std::unique_ptr<BearSSL::WiFiClientSecure>client(new BearSSL::WiFiClientSecure);
+  client->setFingerprint(FINGERPRINT);
   HTTPClient https;
 
   const size_t bufferSize = JSON_OBJECT_SIZE(2) + JSON_OBJECT_SIZE(3) + JSON_OBJECT_SIZE(5) + JSON_OBJECT_SIZE(8) + 370;
   DynamicJsonBuffer jsonBuffer(bufferSize);
 
-  if (https.begin(*client, url))
-  {
+  if (https.begin(*client, url)) {
 
     Serial.print("[HTTPS] GET...");
     Serial.println(url);
@@ -118,38 +100,27 @@ JsonObject &makeGetCall(String url)
     Serial.print("[HTTPS] GET... resp: ");
     Serial.println(resp);
 
-    if (httpCode > 0)
-    {
-
-      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
-      {
+    if (httpCode > 0) {
+      if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY) {
         return jsonBuffer.parseObject(resp);
       }
-    }
-    else
-    {
+    } else {
       Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
     }
     https.end();
-  }
-  else
-  {
+  } else {
     Serial.printf("[HTTPS] Unable to connect\n");
   }
   return jsonBuffer.parseObject(CONNECTION_FAILED);
 }
-String registerDevice()
-{
-  String url = host + "/api/devices";
-  String payload = "ip=" + WiFi.localIP().toString();
-  JsonObject &root = makePostCall(url, payload);
-  if (root["success"])
-  {
+String registerDevice() {
+  String url = String(SERVER_BASE_URL) + "/api/devices";
+  String payload = "ip=" + WiFi.localIP().toString() + "&name=" + BOARD_NAME;
+  JsonObject&  root = makePostCall(url, payload);
+  if (root["success"]) {
     id = root["data"]["id"].as<String>();
-
     int len = root["data"]["pins"].size();
-    for (int i = 0; i < len; i++)
-    {
+    for (int i = 0; i < len; i++) {
       int pin = root["data"]["pins"][i];
       int val = root["data"]["status"][i];
       pins[i] = pin;
@@ -162,30 +133,62 @@ String registerDevice()
       Serial.println(val);
     }
     Serial.println(" payload: " + payload);
-  }
-  else
-  {
+  } else {
     Serial.println(" Error in while registering device");
     String msg = root["message"];
     Serial.println(msg);
   }
   return id;
 }
-void fetchPinStatus()
-{
-  String url = host + "/api/devices/";
+bool updateMeta(bool reset, bool syncd) {
+  String url = String(SERVER_BASE_URL) + "/api/devices/";
+  url = String(url) + id + "/meta";
+  String payload = String("reset=") + reset + "&syncd=" + syncd;
+  JsonObject&  root = makePostCall(url, payload);
+  if (root["success"]) {
+    Serial.println("updateMeta: payload: " + payload);
+    return true;
+  } else {
+    Serial.println(" Error in while updating Meta");
+    String msg = root["message"];
+    Serial.println(msg);
+  }
+  return false;
+}
+
+void heartbeat() {
+  String url = String(SERVER_BASE_URL) + "/api/devices/";
+  url = String(url) + id + "/heartbeat";
+  JsonObject& root = makeGetCall(url);
+  if (root["success"]) {
+    bool syncd = root["data"]["syncd"];
+    bool reset = root["data"]["reset"];
+    if (reset) {
+      if (updateMeta(false, syncd)) {
+        ESP.reset();
+      }
+    }
+    if (!syncd) {
+      fetchPinStatus();
+      updateMeta(reset, true);
+    }
+  } else {
+    Serial.println(" Error in while heartbeat");
+    String msg = root["message"];
+    Serial.println(msg);
+  }
+}
+void fetchPinStatus() {
+  String url = String(SERVER_BASE_URL) + "/api/devices/";
   url = String(url) + id;
-  JsonObject &root = makeGetCall(url);
-  if (root["success"])
-  {
+  JsonObject& root = makeGetCall(url);
+  if (root["success"]) {
     int len = root["data"]["pins"].size();
-    for (int i = 0; i < len; i++)
-    {
+    for (int i = 0; i < len; i++) {
       int pin = root["data"]["pins"][i];
       int val = root["data"]["status"][i];
       int current = values[i];
-      if (current != val)
-      {
+      if (current != val) {
         digitalWrite(pin, val);
         pins[i] = pin;
         values[i] = val;
@@ -197,38 +200,31 @@ void fetchPinStatus()
         Serial.println(val);
       }
     }
-  }
-  else
-  {
+  } else {
     Serial.println(" Error in while fetching pin state");
     String msg = root["message"];
     Serial.println(msg);
-    if (root.containsKey("code") && root["code"] == 404)
-    {
+    if (root.containsKey("code") && root["code"] == 404) {
       connectToPublicServer();
     }
   }
 }
-void connectToPublicServer()
-{
-  while (registerDevice().equals("-1"))
-  {
+void connectToPublicServer() {
+  while (registerDevice().equals(INITIAL_ID)) {
     delay(10);
     Serial.println(" trying to connect to server !!!");
   }
 }
 
-void connectToWiFi()
-{
+void connectToWiFi() {
   Serial.begin(115200);
   delay(10);
   Serial.print("Connecting to ");
-  Serial.println(ssid);
+  Serial.println(STASSID);
 
-  WiFi.begin(ssid, password);
+  WiFi.begin(STASSID, STAPSK);
 
-  while (WiFi.status() != WL_CONNECTED)
-  {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(10);
     Serial.print(".");
   }
@@ -241,13 +237,12 @@ void connectToWiFi()
   long rssi = WiFi.RSSI();
   Serial.print("signal strength (RSSI):");
   Serial.println(rssi);
+
 }
-void setupWebServer()
-{
+void setupWebServer() {
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
-  if (MDNS.begin("esp8266"))
-  {
+  if (MDNS.begin(BOARD_NAME)) {
     Serial.println("MDNS responder started");
   }
   server.on("/", handleRoot);
@@ -259,21 +254,16 @@ void setupWebServer()
   MDNS.addService("http", "tcp", 80);
   Serial.println("HTTP server started");
 }
-void setup()
-{
+void setup() {
   connectToWiFi();
-  connectToPublicServer();
-
   setupWebServer();
   Serial.println(" setup completed !!!");
+  connectToPublicServer();
 }
-void loop()
-{
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    fetchPinStatus();
+void loop() {
+  if (WiFi.status() == WL_CONNECTED) {
+    heartbeat();
     server.handleClient();
     MDNS.update();
   }
-  delay(10);
 }
