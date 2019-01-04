@@ -1,11 +1,12 @@
 /* eslint-disable react/prop-types */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+import Grid from '@material-ui/core/Grid';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { withStyles } from '@material-ui/core/styles';
 import { setPin } from './api';
@@ -49,9 +50,14 @@ const typographyStyles = theme => ({
   },
 });
 const StyledTypography = withStyles(typographyStyles)(Typography);
-
 export default function Board({ data }) {
   const [board, setBoardState] = useState(data);
+  useEffect(
+    () => {
+      setBoardState(data);
+    },
+    [data],
+  );
   function togglePin(index) {
     const status = [...board.status];
     status[index] = !status[index];
@@ -59,6 +65,7 @@ export default function Board({ data }) {
       setBoardState({ ...board, status });
     });
   }
+
   return (
     <div style={{ margin: '20px' }}>
       <PaperSheet elevation={1}>
