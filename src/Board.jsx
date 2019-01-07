@@ -25,7 +25,7 @@ function DisplayDate({ date }) {
   const diff = (Date.now() - d.getTime()) / 1000;
   return (
     <React.Fragment>
-      {diff > 60 ? (
+      {diff > 15 ? (
         <Emoji style={EmojiStyle} name="offline" />
       ) : (
         <Emoji style={EmojiStyle} name="online" />

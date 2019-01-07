@@ -4,6 +4,7 @@ import DeviceError from './device-error.mjs';
 const defaultConfiguration = {
   name: null,
   lastOnline: null,
+  startedAt: null,
   id: null,
   ip: null,
   syncd: true,
@@ -45,9 +46,11 @@ async function update(id) {
 }
 async function add(name, ip) {
   let device = await findByName(name);
+  const startedAt = new Date();
   if (device) {
     device.ip = ip;
-    device.lastOnline = new Date();
+    device.startedAt = startedAt;
+    device.lastOnline = startedAt;
     const updatdDevice = await db.updateById(device.id, device);
     return updatdDevice;
   }
@@ -55,7 +58,8 @@ async function add(name, ip) {
     ...defaultConfiguration,
     name,
     ip,
-    lastOnline: new Date(),
+    startedAt,
+    lastOnline: startedAt,
     pins: defaultConfiguration.pins,
     status: defaultConfiguration.status,
   });
