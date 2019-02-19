@@ -14,8 +14,9 @@
     "firebase-admin": "^6.4.0",
     "hubdb": "^1.1.2",
     "prop-types": "^15.6.2",
-    "react": "16.7.0-alpha.2",
-    "react-dom": "16.7.0-alpha.2",
+    "react": "^16.8.2",
+    "react-dom": "^16.8.2",
+    "react-ga": "^2.5.7",
     "react-scripts": "2.0.3",
     "request": "^2.88.0",
     "workbox-cli": "^3.6.3"

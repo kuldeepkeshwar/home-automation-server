@@ -1,3 +1,11 @@
+let updateCallback = null;
+let updateRequired = false;
+export function onUpdate(callback) {
+  updateCallback = callback;
+  if (updateRequired) {
+    updateCallback();
+  }
+}
 export function register() {
   if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -10,6 +18,8 @@ export function register() {
             installingWorker.onstatechange = () => {
               if (installingWorker.state === 'installed') {
                 if (navigator.serviceWorker.controller) {
+                  updateRequired = true;
+                  updateCallback && updateCallback();
                   console.log('New content is available; please refresh.');
                 } else {
                   console.log('Content is cached for offline use.');
