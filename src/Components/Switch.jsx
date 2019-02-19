@@ -69,6 +69,7 @@ function CustomizedSwitches({
         checked: classes.iOSChecked,
       }}
       disableRipple
+      checked={checked}
       onChange={onChange}
       value={value}
     />
